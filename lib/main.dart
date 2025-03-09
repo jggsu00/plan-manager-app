@@ -38,9 +38,9 @@ class PlanManagerScreen extends StatefulWidget {
 }
 
 class _PlanManagerScreenState extends State<PlanManagerScreen> {
-  List<Plan> newPlans = []; // Holds newly created plans before dragging into the list
-  Map<DateTime, List<Plan>> calendarPlans = {}; // Maps dates to plans
-  DateTime selectedDate = DateTime.now(); // Tracks selected date for calendar
+  List<Plan> newPlans = [];
+  Map<DateTime, List<Plan>> calendarPlans = {};
+  DateTime selectedDate = DateTime.now();
   Plan? _selectedPlanForEdit;
 
   void _addPlan(String name, String description, String category) {
@@ -55,7 +55,7 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
         calendarPlans[selectedDate] = [];
       }
       calendarPlans[selectedDate]!.add(plan);
-      newPlans.remove(plan); // Remove from new plans after it's dragged
+      newPlans.remove(plan);
     });
   }
 
@@ -70,3 +70,93 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
       calendarPlans[selectedDate]!.removeAt(index);
     });
   }
+
+  void _showCreatePlanDialog({Plan? plan}) {
+    String name = plan?.name ?? "";
+    String description = plan?.description ?? "";
+    String category = plan?.category ?? "Adoption";
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(plan == null ? "Create New Plan" : "Edit Plan"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration: InputDecoration(labelText: "Plan Name"),
+                    controller: TextEditingController(text: name),
+                    onChanged: (value) => name = value,
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: "Description"),
+                    controller: TextEditingController(text: description),
+                    onChanged: (value) => description = value,
+                  ),
+                  DropdownButton<String>(
+                    value: category,
+                    onChanged: (value) {
+                      setDialogState(() {
+                        category = value!;
+                      });
+                    },
+                    items: ["Adoption", "Travel"].map((String category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    if (name.isNotEmpty) {
+                      if (plan == null) {
+                        _addPlan(name, description, category);
+                      } else {
+                        setState(() {
+                          plan.name = name;
+                          plan.description = description;
+                          plan.category = category;
+                        });
+                      }
+                    }
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(plan == null ? "Add" : "Update"),
+                )
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Color _getPlanColor(Plan plan) {
+    if (plan.isCompleted) {
+      return plan.category == "Adoption" ? Colors.green : Colors.green;
+    } else {
+      return plan.category == "Adoption" ? Colors.orange : Colors.orange;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Plan Manager")),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: ElevatedButton(
+                onPressed: () => _showCreatePlanDialog(),
+                child: Text("Create Plan"),
+              ),
+            ),
