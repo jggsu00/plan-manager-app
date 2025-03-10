@@ -229,3 +229,36 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                 ),
               ),
             ],
+
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+              child: TableCalendar(
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2025, 12, 31),
+                focusedDay: selectedDate,
+                selectedDayPredicate: (day) {
+                  return isSameDay(day, selectedDate);
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    selectedDate = selectedDay;
+                  });
+                },
+                calendarBuilders: CalendarBuilders(
+                  markerBuilder: (context, day, events) {
+                    if (calendarPlans[day] != null && calendarPlans[day]!.isNotEmpty) {
+                      return Positioned(
+                        bottom: 1,
+                        right: 1,
+                        child: Icon(
+                          Icons.circle,
+                          size: 10,
+                          color: Colors.blueAccent,
+                        ),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
+                ),
+              ),
+            ),
