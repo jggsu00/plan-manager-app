@@ -160,3 +160,72 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                 child: Text("Create Plan"),
               ),
             ),
+            DragTarget<Plan>(
+              onAccept: (plan) {
+                _movePlanToSpecificDay(plan);
+              },
+              builder: (context, candidateData, rejectedData) {
+                return Container(
+                  height: 80,
+                  color: Colors.blue[50],
+                  child: Center(
+                    child: Text(
+                      "Drop plans here",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            if (newPlans.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("New Plans (Drag to Add)", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              Container(
+                height: 100,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: newPlans.map((plan) {
+                    return Draggable<Plan>(
+                      data: plan,
+                      feedback: Material(
+                        color: Colors.transparent,
+                        child: Container(
+                          width: 150,
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: _getPlanColor(plan).withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(plan.name, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              Text(plan.category, style: TextStyle(color: Colors.white70)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      child: Container(
+                        width: 150,
+                        padding: EdgeInsets.all(8),
+                        margin: EdgeInsets.symmetric(horizontal: 5),
+                        decoration: BoxDecoration(
+                          color: _getPlanColor(plan).withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(plan.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(plan.category),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
