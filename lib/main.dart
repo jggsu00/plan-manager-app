@@ -177,7 +177,6 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                 );
               },
             ),
-
             if (newPlans.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -229,7 +228,6 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                 ),
               ),
             ],
-
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
               child: TableCalendar(
@@ -262,3 +260,58 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Plans for ${selectedDate.toLocal()}",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            if (calendarPlans[selectedDate] != null && calendarPlans[selectedDate]!.isNotEmpty)
+              Column(
+                children: calendarPlans[selectedDate]!.map((plan) {
+                  return GestureDetector(
+                    onLongPress: () {
+                      _showCreatePlanDialog(plan: plan);
+                    },
+                    onDoubleTap: () {
+                      _deletePlan(calendarPlans[selectedDate]!.indexOf(plan));
+                    },
+                    child: Dismissible(
+                      key: Key(plan.name),
+                      direction: DismissDirection.horizontal,
+                      confirmDismiss: (direction) async {
+                        _toggleComplete(calendarPlans[selectedDate]!.indexOf(plan));
+                        return false;
+                      },
+                      background: Container(color: Colors.green, alignment: Alignment.centerLeft, padding: EdgeInsets.symmetric(horizontal: 20), child: Icon(Icons.check, color: Colors.white)),
+                      secondaryBackground: Container(color: Colors.green, alignment: Alignment.centerRight, padding: EdgeInsets.symmetric(horizontal: 20), child: Icon(Icons.check, color: Colors.white)),
+                      child: ListTile(
+                        tileColor: _getPlanColor(plan).withOpacity(0.2),
+                        title: Text(
+                          plan.name,
+                          style: TextStyle(
+                            color: _getPlanColor(plan),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text("${plan.category} - ${plan.description.isNotEmpty ? plan.description : "No description"}"),
+                        trailing: plan.isCompleted
+                            ? Icon(Icons.check_circle, color: Colors.green)
+                            : Icon(Icons.pending, color: Colors.orange),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("No plans for this day yet."),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
